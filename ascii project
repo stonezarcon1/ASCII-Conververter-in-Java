@@ -1,0 +1,73 @@
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
+public class Main {
+
+    private static double getRGB(int i, int j, Mat matrix) {
+        //this method is used to obtain pixel values of an image
+        double rgbVal;
+        double[] pixel = matrix.get(i, j);
+        rgbVal = pixel[0] + pixel[1] + pixel[2];
+        rgbVal = rgbVal / 3;
+        return rgbVal;
+    }
+
+    public static String getAsciiChar(int r, int c, double[][] rgb) {
+        //this is the method we use to construct our picture from the tuples
+        //stored in rgb[][]
+        StringBuilder sb = new StringBuilder();
+        char myChar;
+        String myString;
+        /*String asciiChar = "````^^^^;;;;iiii????[[[[))))ttttnnnnXXXXZZZZdddd****####BBBB$$$$";
+        * this is a test to see if less variety in chars is better. It doesn't seem to be. */
+        String asciiChar = "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+        double storeNum = rgb[r][c];
+        int intNum = (int) Math.round(storeNum) / 4;
+        myChar = asciiChar.charAt(intNum);
+        sb.append(myChar);
+        sb.append(myChar);
+        sb.append(myChar);
+        myString = sb.toString();
+        return myString;
+    }
+
+    public static void main(String[] args) {
+
+        /* This program loads an image int a Mat object, converts the RGB values int
+        ascii characters, and then prints out the result.
+         */
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        Imgcodecs imageCodecs = new Imgcodecs();
+        Mat matrix = imageCodecs.imread("/Users/brand/Downloads/face.JPG"); //reading our image
+        Mat dst = new Mat(); //new mat that we will store our resized image in
+        int sizeFactor = 15; //the factor by which we will scale back our image
+        Imgproc.resize(matrix, dst, new Size(matrix.cols()/sizeFactor, matrix.rows()/sizeFactor), 0, 0,
+                Imgproc.INTER_AREA);  //resizing the image to fit in the console
+        System.out.println("Image loaded");
+        System.out.println("Image size : " + dst.width() + " x " + dst.height());
+        double[][] rgb = new double[dst.height()][dst.width()]; //where the tuples are stored
+        String[][] asciiA = new String[dst.height()][dst.width()]; //where the final product is stored
+
+
+        for (int r = 0 ; r < dst.height(); r++) {
+            for (int c = 0; c < dst.width(); c++) {
+                rgb[r][c] = getRGB(r, c, dst); //iterating through Mat object and storing here
+            }
+        }
+
+        for (int r = 0; r < dst.height(); r++) {
+            for (int c = 0; c < dst.width(); c++) {
+                asciiA[r][c] = getAsciiChar(r, c, rgb); //iterating through rgb and assigning ascii values here
+            }
+        }
+        for (String[] row : asciiA) { //printing our picture!
+                for (String el : row)
+                    System.out.print(el);
+
+            System.out.println();
+        }
+    }
+}
